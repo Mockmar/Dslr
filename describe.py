@@ -37,14 +37,32 @@ def repartion_non_numerical_features(df, column):
     return df_repartition
 
 
+def custom_describe(df):
+    description = {}
+    for column in df.select_dtypes(include=['float64', 'int64']).columns:
+        description[column] = {
+            'count': df[column].count(),
+            'mean': df[column].mean(),
+            'std': df[column].std(),
+            'min': df[column].min(),
+            '25%': df[column].quantile(0.25),
+            '50%': df[column].median(),
+            '75%': df[column].quantile(0.75),
+            'max': df[column].max()
+        }
+    return pd.DataFrame(description)
 
 def describe(df):
+    print('General Information')
+    print(custom_describe(df.groupby('Hogwarts House')).loc[:, (slice(None), 'std')])
+    print('\n')
     house_df = repartion_non_numerical_features(df, 'Hogwarts House')
     print('House Repartition')
     print(house_df.to_string(index=False))
+    print('\n')
+    print('Best Hand Repartition')
     hand_df = repartion_non_numerical_features(df, 'Best Hand')
     print(hand_df.to_string(index=False))
-    print('\n')
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
