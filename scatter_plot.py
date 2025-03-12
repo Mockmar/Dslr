@@ -4,6 +4,7 @@ matplotlib.use('gtk3agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
+from preprocessing import Preprocess
 
 def import_csv(path):
     return pd.read_csv(path)
@@ -31,7 +32,7 @@ def find_most_similar_features(correlation_matrix):
     return feature_pair
 
 def plot_scatter(df, feature1, feature2):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(14, 8))
     plt.scatter(df[feature1], df[feature2], alpha=0.5)
     plt.title(f'Scatter Plot between {feature1} and {feature2}')
     plt.xlabel(feature1)
@@ -39,9 +40,10 @@ def plot_scatter(df, feature1, feature2):
     plt.show(block=True)
 
 def plot_matrix_correlation(correlation_matrix):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(14, 8))
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt=".2f")
     plt.title('Correlation Matrix')
+    plt.subplots_adjust(left=0.1, right=1, top=0.95, bottom=0.2, wspace=0.3, hspace=0.3)
     plt.show(block=True)
 
 if __name__ == "__main__":
@@ -51,8 +53,12 @@ if __name__ == "__main__":
     path = sys.argv[1]
 
     df = import_csv(path)
-    df = preprocesing(df)
-    
+
+    preprocess = Preprocess()
+    df = preprocess.preprocesing(df)
+    df = preprocess.calculate_age(df, 2020)
+    df = preprocess.encode_column(df, 'Best Hand')
+
     correlation_matrix = correlation_matrix_extraction(df)
 
     plot_matrix_correlation(correlation_matrix)

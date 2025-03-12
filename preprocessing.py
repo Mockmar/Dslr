@@ -17,7 +17,8 @@ class Preprocess:
     def calculate_age(self, df, today_year):
         df['Birthday'] = pd.to_datetime(df['Birthday'])
         df['Age'] = df['Birthday'].dt.year
-        return df['Age'].apply(lambda x: today_year - x)
+        df['Age'] = df['Age'].apply(lambda x: today_year - x)
+        return df
     
     def encode_column(self, df, column):
         self.encoders = {column: LabelEncoder()}

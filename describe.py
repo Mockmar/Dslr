@@ -1,16 +1,10 @@
 import pandas as pd
 import numpy as np
+from preprocessing import Preprocess
 import sys
 
 def import_csv(path):
     return pd.read_csv(path)
-
-def preprocesing(df):
-    df.dropna(axis=0, inplace=True)
-    df.drop_duplicates(inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    df.drop(columns=['Index'], inplace=True)
-    return df
 
 def mean_numerical_feature_per_house(df):
     numerical_columns = df.select_dtypes(include=['float64','int64']).columns.tolist()
@@ -18,11 +12,6 @@ def mean_numerical_feature_per_house(df):
     tmp = df[numerical_columns]
     df_grpby = tmp.groupby('Hogwarts House').mean()
     return df_grpby
-
-def calculate_age(df, today_year):
-    df['Birthday'] = pd.to_datetime(df['Birthday'])
-    df['Age'] = df['Birthday'].dt.year
-    return df['Age'].apply(lambda x: today_year - x)
 
 def repartion_non_numerical_features(df, column):
     tmp_df = df[column].value_counts()
@@ -40,11 +29,6 @@ def repartion_non_numerical_features(df, column):
 
     df_repartition = pd.DataFrame(data)
     return df_repartition
-
-
-
-import pandas as pd
-import numpy as np
 
 def custom_count(series):
     count = 0
@@ -114,21 +98,6 @@ def custom_describe(df):
         }
     return pd.DataFrame(description)
 
-# def custom_describe(df):
-#     description = {}
-#     for column in df.select_dtypes(include=['float64', 'int64']).columns:
-#         description[column] = {
-#             'count': df[column].count().round(2),
-#             'mean': df[column].mean().round(2),
-#             'std': df[column].std().round(2),
-#             'min': df[column].min().round(2),
-#             '25%': df[column].quantile(0.25).round(2),
-#             '50%': df[column].median().round(2),
-#             '75%': df[column].quantile(0.75).round(2),
-#             'max': df[column].max().round(2)
-#         }
-#     return pd.DataFrame(description)
-
 def describe(df):
     print('---General Information---\n')
     description = custom_describe(df)
@@ -147,9 +116,11 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Please provide a path to the dataset')
         sys.exit(1)
+    preprocess = Preprocess()
     path = sys.argv[1]
     df = import_csv(path)
-    df = preprocesing(df)
+    df = preprocess.preprocesing(df)
+    df = preprocess.calculate_age(df, 2020)
     describe(df)
 
 

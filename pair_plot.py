@@ -3,8 +3,8 @@ import matplotlib
 matplotlib.use('gtk3agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
+from preprocessing import Preprocess
 import sys
-
 
 def import_csv(path):
     return pd.read_csv(path)
@@ -23,12 +23,17 @@ def plot_pair_plot(df, house_column='Hogwarts House'):
         'Gryffindor': '#ff9999',  # Rouge pastel
         'Hufflepuff': '#ffeb99'   # Jaune pastel
     }
-    sns.pairplot(df, hue=house_column, palette=house_color, height=1.5)  # height ajuste chaque sous-graphique
-    
-    # plt.gcf().set_size_inches(14, 14)
+    g = sns.pairplot(df, hue=house_column, palette=house_color)
+
+    for ax in g.axes.flatten():
+        # rotate x axis labels
+        # ax.set_xlabel(ax.get_xlabel(), rotation = 90)
+        # rotate y axis labels
+        ax.set_ylabel(ax.get_ylabel(), rotation = 0)
+        # set y labels alignment
+        ax.yaxis.get_label().set_horizontalalignment('right')
 
     plt.subplots_adjust(left=0.1, right=0.9, top=0.95, bottom=0.05, wspace=0.3, hspace=0.3)
-    
     
     plt.show(block=True)
 
@@ -42,8 +47,9 @@ if __name__ == "__main__":
     path = sys.argv[1]
 
     df = import_csv(path)
-    df = preprocesing(df)
-
-    # course_columns = extract_course_columns(df)
+    preprocess = Preprocess()
+    df = preprocess.preprocesing(df)
+    df = preprocess.calculate_age(df, 2020)
+    df = preprocess.encode_column(df, 'Best Hand')
 
     plot_pair_plot(df)

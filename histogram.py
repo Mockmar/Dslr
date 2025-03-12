@@ -35,7 +35,6 @@ if __name__ == "__main__":
     path = sys.argv[1]
     df = import_csv(path)
     df = preprocesing(df)
-    # Remplacez 'course_columns' par les noms des colonnes de vos cours
     course_columns = ['Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies', 'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']
     
     plot_histograms(df, course_columns)
