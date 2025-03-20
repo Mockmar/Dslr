@@ -70,5 +70,10 @@ if __name__ == '__main__':
     df = import_csv(path)
     model.parse_file(model.path_model)
     features = preprocess.fit_predict(df)
+    print(features)
     predict = model.predict(features)
-    print(predict)
+    with open('predictions.txt', 'w') as file:
+        i = 0
+        for p in predict:
+            file.write(f'{i},{p}\n')
+            i += 1
