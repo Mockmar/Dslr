@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('gtk3agg')
 import matplotlib.pyplot as plt
+import joblib
 
 def import_csv(path):
     return pd.read_csv(path)
@@ -28,6 +29,7 @@ class Predictor:
                     self.classes_.append(nom_class)
                     theta_tmp = list(map(float, thetas.split(",")))  # Convertit en float si ce sont des nombres
                     self.thetas.append(theta_tmp)
+        self.thetas = np.array(self.thetas)
 
     def sigmoid(self, z):
         """
@@ -47,19 +49,26 @@ class Predictor:
         Prédit la classe en prenant celle avec la plus grande probabilité.
         """
         probabilities = self.predict_proba(X)
-        return self.classes_[np.argmax(probabilities, axis=1)]  # Retourne la classe avec la proba max
+        encoded_classes = np.argmax(probabilities, axis=1)
+        result = [self.classes_[i] for i in encoded_classes]
+        return result  # Retourne la classe avec la proba max
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('Please provide a path to the dataset')
+    if len(sys.argv) < 3:
+        print('Please provide a path to the dataset and a path to the model')
         sys.exit(1)
     path = sys.argv[1]
+    path_model = sys.argv[2]
 
     preprocess = Preprocess()
-    model = Predictor(path_model=path)
+    model = Predictor(path_model=path_model)
 
+    encoder = joblib.load('encoder_best_hand.plk')
+    preprocess.encoders['Best Hand'] = encoder
+    normalizer = joblib.load('normalizer.plk')
+    preprocess.normalizer = normalizer
     df = import_csv(path)
-    features, target = preprocess.fit(df)
-    model.fit(features, target)
-    model.export_model('model.txt')
-    model.plot_log_loss()
+    model.parse_file(model.path_model)
+    features = preprocess.fit_predict(df)
+    predict = model.predict(features)
+    print(predict)

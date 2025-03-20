@@ -108,6 +108,8 @@ if __name__ == '__main__':
     path = sys.argv[1]
     df = import_csv(path)
     features, target = preprocess.fit(df)
+    preprocess.export_encoders('encoder_best_hand.plk','Best Hand')
+    preprocess.export_normalizer('normalizer.plk')
     model.fit(features, target)
     model.export_model('model.txt')
     model.plot_log_loss()
