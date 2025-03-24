@@ -1,4 +1,4 @@
-from preprocessing import Preprocess
+from preprocessing import Preprocess, CustomStandardScaler, CustomLabelEncoder
 import sys
 import pandas as pd
 import numpy as np
@@ -59,21 +59,43 @@ if __name__ == '__main__':
         sys.exit(1)
     path = sys.argv[1]
     path_model = sys.argv[2]
-
-    preprocess = Preprocess()
-    model = Predictor(path_model=path_model)
-
-    encoder = joblib.load('encoder_best_hand.plk')
-    preprocess.encoders['Best Hand'] = encoder
-    normalizer = joblib.load('normalizer.plk')
-    preprocess.normalizer = normalizer
     df = import_csv(path)
+
+    
+    feature_name = ['Astronomy',
+                    'Herbology',
+                    'Defense Against the Dark Arts',
+                    'Divination',
+                    'Muggle Studies',
+                    'Ancient Runes',
+                    'History of Magic',
+                    'Transfiguration',
+                    'Charms',
+                    'Flying']
+    
+    columns = feature_name
+    columns.append('Index')
+
+    print(df.columns)
+    print(columns)
+
+    df = df[columns]
+    df.dropna(axis=0, inplace=True)
+    df.drop_duplicates(inplace=True)
+
+    index_list = df['Index'].tolist()
+    df.drop(columns=['Index'], inplace=True)
+
+    normalize = CustomStandardScaler()
+    normalize.load('normalizer.csv')
+
+    features = normalize.transform(df)
+    X = features.to_numpy()
+
+    model = Predictor(path_model=path_model)
     model.parse_file(model.path_model)
-    features = preprocess.fit_predict(df)
-    print(features)
-    predict = model.predict(features)
-    with open('predictions.txt', 'w') as file:
-        i = 0
-        for p in predict:
-            file.write(f'{i},{p}\n')
-            i += 1
+    predict = model.predict(X)
+    with open('houses.csv', 'w') as file:
+        file.write(f'Index,Hogwarts House\n')
+        for index, p in zip(index_list, predict):
+            file.write(f'{index},{p}\n')

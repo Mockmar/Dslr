@@ -1,10 +1,13 @@
-from preprocessing import Preprocess
+from preprocessing import CustomStandardScaler
 import sys
 import pandas as pd
 import numpy as np
 import matplotlib
 matplotlib.use('gtk3agg')
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 
 def import_csv(path):
     return pd.read_csv(path)
@@ -101,15 +104,46 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Please provide a path to the dataset')
         sys.exit(1)
-
-    preprocess = Preprocess()
-    model = LogisticRegressionOVR(learning_rate=0.1, max_iter=1000)
-
     path = sys.argv[1]
     df = import_csv(path)
-    features, target = preprocess.fit(df)
-    preprocess.export_encoders('encoder_best_hand.plk','Best Hand')
-    preprocess.export_normalizer('normalizer.plk')
-    model.fit(features, target)
+    df.drop(columns=['Index'], inplace=True)
+
+    normalize = CustomStandardScaler()
+    model = LogisticRegressionOVR(learning_rate=0.1, max_iter=10000)
+    std = StandardScaler()
+
+    feature_name = ['Astronomy',
+                    'Herbology',
+                    'Defense Against the Dark Arts',
+                    'Divination',
+                    'Muggle Studies',
+                    'Ancient Runes',
+                    'History of Magic',
+                    'Transfiguration',
+                    'Charms',
+                    'Flying']
+
+    # feature_name = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+    target_name = ['Hogwarts House']
+
+    df.dropna(axis=0, inplace=True)
+    df.drop_duplicates(inplace=True)
+
+    features = df[feature_name]
+    target = df[target_name]
+
+    # features = normalize.fit_transform(features)
+    X = std.fit_transform(features)
+    # normalize.save('normalizer.csv')
+
+    # X = features.to_numpy()
+    y = target.to_numpy().ravel()
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
+
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'Accuracy: {accuracy} 🎯')
     model.export_model('model.txt')
     model.plot_log_loss()
