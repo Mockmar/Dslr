@@ -5,9 +5,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('gtk3agg')
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
 
 def import_csv(path):
     return pd.read_csv(path)
@@ -44,7 +42,7 @@ class LogisticRegressionOVR:
         """
         m = len(y)
         log_loss_class = []
-        for _ in range(self.max_iter):
+        for _ in tqdm(range(self.max_iter), desc=f"Training model for {class_name}", leave=True):
             h = self.sigmoid(X @ theta)
             gradient = (1 / m) * X.T @ (h - y)  # Gradient de la fonction de coût
             theta -= self.learning_rate * gradient  # Mise à jour des poids
@@ -57,9 +55,9 @@ class LogisticRegressionOVR:
         Entraîne le modèle en utilisant la méthode One-vs-All.
         """
         m, n = X.shape
-        self.classes_ = np.unique(y)  # Liste des classes uniques
-        self.thetas = np.zeros((len(self.classes_), n + 1))  # Initialisation des poids
-        X_bias = np.c_[np.ones((m, 1)), X]  # Ajout d'un biais (colonne de 1)
+        self.classes_ = np.unique(y)
+        self.thetas = np.zeros((len(self.classes_), n + 1))
+        X_bias = np.c_[np.ones((m, 1)), X]
 
         for i, c in enumerate(self.classes_):
             y_binary = (y == c).astype(int)  # Convertir en problème binaire (1 si c'est la classe, sinon 0)
@@ -110,7 +108,6 @@ if __name__ == '__main__':
 
     normalize = CustomStandardScaler()
     model = LogisticRegressionOVR(learning_rate=0.1, max_iter=10000)
-    std = StandardScaler()
 
     feature_name = ['Astronomy',
                     'Herbology',
@@ -123,7 +120,6 @@ if __name__ == '__main__':
                     'Charms',
                     'Flying']
 
-    # feature_name = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
     target_name = ['Hogwarts House']
 
     df.dropna(axis=0, inplace=True)
@@ -132,18 +128,13 @@ if __name__ == '__main__':
     features = df[feature_name]
     target = df[target_name]
 
-    # features = normalize.fit_transform(features)
-    X = std.fit_transform(features)
-    # normalize.save('normalizer.csv')
+    features = normalize.fit_transform(features)
+    normalize.save('normalizer.csv')
 
-    # X = features.to_numpy()
+    X = features.to_numpy()
     y = target.to_numpy().ravel()
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=0)
 
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy} 🎯')
+    model.fit(X, y)
     model.export_model('model.txt')
     model.plot_log_loss()

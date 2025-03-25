@@ -27,7 +27,7 @@ class Predictor:
                     theta_tmp = []
                     nom_class, thetas = line.split(":")
                     self.classes_.append(nom_class)
-                    theta_tmp = list(map(float, thetas.split(",")))  # Convertit en float si ce sont des nombres
+                    theta_tmp = list(map(float, thetas.split(",")))
                     self.thetas.append(theta_tmp)
         self.thetas = np.array(self.thetas)
 
@@ -41,8 +41,8 @@ class Predictor:
         """
         Retourne les probabilités pour chaque classe.
         """
-        X_bias = np.c_[np.ones((X.shape[0], 1)), X]  # Ajouter le biais
-        return self.sigmoid(X_bias @ self.thetas.T)  # Matrice de probabilités
+        X_bias = np.c_[np.ones((X.shape[0], 1)), X]
+        return self.sigmoid(X_bias @ self.thetas.T)
 
     def predict(self, X):
         """
@@ -51,7 +51,7 @@ class Predictor:
         probabilities = self.predict_proba(X)
         encoded_classes = np.argmax(probabilities, axis=1)
         result = [self.classes_[i] for i in encoded_classes]
-        return result  # Retourne la classe avec la proba max
+        return result
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
