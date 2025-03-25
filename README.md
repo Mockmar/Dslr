@@ -1,6 +1,7 @@
 # Dslr
 
 ## Description
+Ceci est le projet DSLR (DataScience x Logistic Regression) de l'ecole 42.
 Ce projet est un pipeline d'analyse de données et de machine learning pour prédire les affectations des maisons de Poudlard en fonction de diverses caractéristiques des étudiants. Il comprend la prétraitement des données, l'analyse statistique et les outils de visualisation, ainsi qu'un modèle de régression logistique pour la classification.
 
 ## Structure du projet
