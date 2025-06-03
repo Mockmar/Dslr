@@ -28,11 +28,6 @@ Ce projet est un pipeline d'analyse de données et de machine learning pour pré
 
 ## Utilisation
 
-### Prétraitement des données
-Pour prétraiter le jeu de données :
-```sh
-python preprocessing.py <path_to_dataset>
-```
 
 ### Entraînement du modèle
 Pour entraîner le modèle de régression logistique :
